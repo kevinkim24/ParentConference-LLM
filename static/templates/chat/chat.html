@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    <title>Parent Conference Practice Chatbot</title> <!-- Browser tab text -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/templates/general.css">
+    
+	</head>
+	<body>
+    <div class="margins-container">
+    <h1 class="head">Parent Conference Practice Chatbot</h1>
+    <h3 style="text-align:center">To get started, click on either the green or blue parent personality and send a prompt to initiate your conversation.</h3>
+    <hr>
+    <!-- Row containing User input box and send query button-->
+    <div class="user-input-row" style="display:flex">
+      <textarea
+        id="user-prompt"
+        placeholder="Type your prompt here"
+        rows="3"
+        style="align-self: flex-start;"
+      >
+      </textarea>
+      <button id="send-button" style="align-self: flex-start;">Send Prompt</button>
+      <div style="border: 5px dashed rgba(0, 0, 0, 0); margin-left: auto; background: rgb(167, 221, 168); align-self: flex-start; width: 18rem; padding: 1rem;" id = "greenButton", onclick="changeSelection(this)" >
+        <strong>Parent:</strong> Mr. James <br>
+        <strong>Description:</strong> A scary, intimidating father. Ex-marine. He has high expectations for both his son and his teacher. He demands the teacher "step things up" to so his son can succeed.  <br>
+        <strong>Child:</strong> Jeff is a timid 8th grader who has been struggling lately in school. He is bullied and doesn't have many friends. 
+      </div>
+
+      <div style="border:5px dashed rgba(0, 0, 0, 0.541); margin-left: auto; background: lightblue; align-self: flex-start; width: 18rem; padding: 1rem; " id = "blueButton", onclick="changeSelection(this)" >
+        <strong>Parent:</strong> Mrs. Johnson <br>
+        <strong>Description:</strong> Quite emotional, and has a lot of emotions that she wants to offload. Mrs. Johnson wants to make sure Mariah feels safe at school.  <br>
+        <strong>Child:</strong> Mariah is a diligent student who had a racist, ablist encounter with Brian.
+      </div>
+    </div>
+   
+    <hr>
+    <!-- box for LLM response-->
+    <div class="response-box" id="response-box">
+      <div class="response-header">Model response:</div>
+      <div class="response-body" id="response-body"></div>
+    </div>
+      
+   <script>
+    // For personality selection
+    var selected = null;
+    window.onload = function() {
+      selected = document.getElementById("blueButton");
+    }
+    //var selected = html.getElementById("blueButton"); // start as blue button 
+    function changeSelection(element){
+      if(selected){
+        selected.style.borderColor ="rgba(0, 0, 0, 0)"; // remove previous element's border
+      }
+      selected = element;
+      selected.style.borderColor = "rgba(0, 0, 0, 0.541)";
+      console.log(selected.id);
+    }
+
+    const FLASK_URL = "http://localhost:5002/chat/query"; // make sure it matches the current port
+    const sendButton  = document.getElementById("send-button");
+    const promptTextArea = document.getElementById("user-prompt");
+    const responseBody = document.getElementById("response-body");
+
+    sendButton.addEventListener("click", sendQuery);
+
+    async function sendQuery() {
+      console.log("BUTTON PRESSED");
+      const prompt = promptTextArea.value.trim(); // trim prevents empty submissions and removes leading/trailing whitespace
+      if (!prompt){ return ; }// faulty input
+    
+      responseBody.innerHTML = 'Fetching response...';
+      
+      try {
+        const llm_response = await fetch(FLASK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt,personality:selected.id})
+        });
+
+        const received_json = await llm_response.json();
+        responseBody.textContent = received_json.response;
+      }
+      catch (error) {
+        responseBody.innerHTML = 'Encountered an error';
+      }
+    }
+   </script>
+   <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script> -->
+	</body>
+</html>
