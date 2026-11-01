@@ -7,4 +7,4 @@ The local model is currently set as "google/gemma-4-e4b".
 The FLASK_URL variable must also be set in chat.html, to be consistent with the port set in Flask. 
 
 You can watch a video of the web app here:
-[![Watch the video]([https://youtube.com](https://youtu.be/5OR-3KjjI8U))]([https://youtube.com](https://youtu.be/5OR-3KjjI8U))
+https://youtu.be/5OR-3KjjI8U
